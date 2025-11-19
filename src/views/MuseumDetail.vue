@@ -56,15 +56,15 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
           <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">📍 位置</div>
+            <div class="text-sm text-gray-600 mb-1">位置</div>
             <div class="text-lg font-bold text-gray-800">{{ museum.location }}</div>
           </div>
           <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">📅 建立时间</div>
+            <div class="text-sm text-gray-600 mb-1">建立时间</div>
             <div class="text-lg font-bold text-gray-800">{{ museum.established }}</div>
           </div>
           <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4">
-            <div class="text-sm text-gray-600 mb-1">🏛️ 文物数量</div>
+            <div class="text-sm text-gray-600 mb-1">文物数量</div>
             <div class="text-lg font-bold text-gray-800">{{ museum.artifacts.length }} 件精选</div>
           </div>
         </div>
