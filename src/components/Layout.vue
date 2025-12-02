@@ -46,7 +46,7 @@ const isActive = (path: string, routeName?: string) => {
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <div class="flex items-center space-x-2">
-            <span class="text-3xl">🏛️</span>
+            <img class="w-14 h-14" src="/images/history_logo.png" />
             <span class="text-xl font-bold text-gray-800">HistoriaQuest</span>
           </div>
 

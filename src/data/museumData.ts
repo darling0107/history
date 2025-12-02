@@ -209,7 +209,7 @@ export const museums: Museum[] = [
         description: '王羲之的书法杰作，被誉为"天下第一行书"',
         detailedDescription:
           '《兰亭序》是东晋书法家王羲之在永和九年（353年）为兰亭雅集所作的诗集序言。这篇书法作品被誉为"天下第一行书"，展现了王羲之高超的书法技艺。原作已失传，现存的都是摹本，其中最著名的是唐代冯承素的神龙本。作品用笔流畅自然，结体优美，章法疏朗，体现了中国书法的最高境界。',
-        imageUrl: '../../public/images/lantingji.jpg',
+        imageUrl: '/images/lantingji.jpg',
         significance: '《兰亭序》是中国书法艺术的巅峰之作，对后世书法发展产生了深远影响。',
       },
     ],

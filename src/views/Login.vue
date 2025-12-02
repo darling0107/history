@@ -161,12 +161,11 @@ onMounted(() => {
       <!-- Logo和标题 -->
       <div class="text-center mb-8">
         <div class="inline-block mb-4 transform transition-transform duration-300 hover:scale-110">
-          <span
-            class="text-6xl inline-block animate-bounce"
+          <img
+            class="text-6xl inline-block animate-bounce w-72 h-72"
             :class="isLogin ? 'animate-bounce' : 'animate-pulse'"
-          >
-            🏛️
-          </span>
+            src="../../public/images/history_logo.png"
+          />
         </div>
         <h1
           class="text-4xl font-bold bg-gradient-to-r from-amber-600 via-orange-500 to-red-500 bg-clip-text text-transparent mb-2 transition-all duration-300"

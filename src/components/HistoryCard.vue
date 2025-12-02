@@ -1,31 +1,33 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { HistoryEvent } from '@/data/chinaHistory'
 
 interface Props {
   event: HistoryEvent
-  isExpanded?: boolean
+  isActive?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isExpanded: false,
+  isActive: false,
 })
 
 const emit = defineEmits<{
-  expand: [id: string]
-  collapse: [id: string]
+  viewDetail: [event: HistoryEvent]
 }>()
 
-const isExpanded = ref(props.isExpanded)
 const isHovered = ref(false)
 
-// 监听props变化
-watch(
-  () => props.isExpanded,
-  (newVal) => {
-    isExpanded.value = newVal
-  },
-)
+const formatPeriod = (period?: string) => {
+  if (!period) {
+    return ''
+  }
+  if (/公元前/.test(period)) {
+    return period
+  }
+  return period.replace(/公元(?!前)\s*/g, '').trim()
+}
+
+const formattedPeriod = computed(() => formatPeriod(props.event.period))
 
 const cardColor = computed(() => {
   const colors: Record<string, string> = {
@@ -51,20 +53,17 @@ const categoryIcon = computed(() => {
   return icons[props.event.category] || '📖'
 })
 
-const toggleExpand = () => {
-  isExpanded.value = !isExpanded.value
-  if (isExpanded.value) {
-    emit('expand', props.event.id)
-  } else {
-    emit('collapse', props.event.id)
-  }
+const cardBorderClass = computed(() => (props.isActive ? 'ring-4 ring-amber-300' : ''))
+
+const handleViewDetail = () => {
+  emit('viewDetail', props.event)
 }
 </script>
 
 <template>
   <div
     class="history-card relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2"
-    :class="isExpanded ? 'ring-4 ring-amber-300' : ''"
+    :class="cardBorderClass"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
@@ -96,7 +95,7 @@ const toggleExpand = () => {
         <div class="flex items-center space-x-4 text-sm opacity-90">
           <span class="flex items-center space-x-1">
             <span>📅</span>
-            <span>{{ event.period }}</span>
+            <span>{{ formattedPeriod }}</span>
           </span>
           <span class="flex items-center space-x-1">
             <span>🏛️</span>
@@ -109,7 +108,7 @@ const toggleExpand = () => {
     <!-- 卡片内容 -->
     <div class="p-6">
       <!-- 简介 -->
-      <p class="text-gray-700 mb-4 line-clamp-2" :class="isExpanded ? '' : 'line-clamp-2'">
+      <p class="text-gray-700 mb-4 line-clamp-2">
         {{ event.description }}
       </p>
 
@@ -124,57 +123,13 @@ const toggleExpand = () => {
         </span>
       </div>
 
-      <!-- 详细内容（展开时显示） -->
-      <Transition name="slide-down">
-        <div v-if="isExpanded" class="mt-4 space-y-4">
-          <!-- 详细讲解 -->
-          <div
-            class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border-l-4 border-amber-500"
-          >
-            <h4 class="font-semibold text-gray-800 mb-2 flex items-center space-x-2">
-              <span>📖</span>
-              <span>详细讲解</span>
-            </h4>
-            <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ event.content }}</p>
-          </div>
-
-          <!-- 历史意义 -->
-          <div
-            class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border-l-4 border-blue-500"
-          >
-            <h4 class="font-semibold text-gray-800 mb-2 flex items-center space-x-2">
-              <span>⭐</span>
-              <span>历史意义</span>
-            </h4>
-            <p class="text-gray-700">{{ event.significance }}</p>
-          </div>
-
-          <!-- 相关事件 -->
-          <div
-            v-if="event.relatedEvents && event.relatedEvents.length > 0"
-            class="bg-gray-50 rounded-xl p-4"
-          >
-            <h4 class="font-semibold text-gray-800 mb-2 flex items-center space-x-2">
-              <span>🔗</span>
-              <span>相关事件</span>
-            </h4>
-            <p class="text-sm text-gray-600">查看其他相关历史事件以了解更多背景</p>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- 展开/收起按钮 -->
+      <!-- 查看详情 -->
       <button
-        @click="toggleExpand"
-        class="w-full mt-4 py-2 px-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-semibold transition-all duration-300 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2"
+        @click="handleViewDetail"
+        class="w-full mt-4 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-semibold transition-all duration-300 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center space-x-2 group"
       >
-        <span>{{ isExpanded ? '收起' : '展开详情' }}</span>
-        <span
-          class="transform transition-transform duration-300"
-          :class="isExpanded ? 'rotate-180' : ''"
-        >
-          ▼
-        </span>
+        <span>查看详情</span>
+        <span class="transition-transform duration-300 group-hover:translate-x-1">→</span>
       </button>
     </div>
 
@@ -200,26 +155,6 @@ const toggleExpand = () => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.slide-down-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.slide-down-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.slide-down-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
-  max-height: 0;
-}
-
-.slide-down-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-  max-height: 0;
 }
 
 .line-clamp-2 {
