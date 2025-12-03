@@ -25,6 +25,7 @@ export interface Artifact {
   detailedDescription: string
   imageUrl: string
   significance: string
+  has3DView?: boolean
 }
 
 // 博物馆数据
@@ -210,7 +211,71 @@ export const museums: Museum[] = [
         detailedDescription:
           '《兰亭序》是东晋书法家王羲之在永和九年（353年）为兰亭雅集所作的诗集序言。这篇书法作品被誉为"天下第一行书"，展现了王羲之高超的书法技艺。原作已失传，现存的都是摹本，其中最著名的是唐代冯承素的神龙本。作品用笔流畅自然，结体优美，章法疏朗，体现了中国书法的最高境界。',
         imageUrl: '/images/lantingji.jpg',
-        significance: '《兰亭序》是中国书法艺术的巅峰之作，对后世书法发展产生了深远影响。',
+        significance: '《兰亭序》是中国书法艺术的巅峰之作,对后世书法发展产生了深远影响。',
+      },
+      {
+        id: 'artifact-4-4',
+        name: '翠玉白菜',
+        nameEn: 'Jadeite Cabbage',
+        museumId: 'museum-4',
+        period: '清朝（19世纪）',
+        civilization: '中华文明',
+        material: '翠玉',
+        dimensions: '高18.7厘米，宽9.1厘米',
+        description: '清代玉雕精品，以翠玉雕刻成白菜形状，栩栩如生',
+        detailedDescription:
+          '翠玉白菜是清代玉雕艺术的杰作，原藏于紫禁城永和宫，据传是光绪皇帝瑾妃的嫁妆。雕刻师巧妙利用翠玉的天然色泽，将白色和翠绿色完美结合，雕刻成白菜的形状。菜叶上还雕有两只昆虫——螽斯和蝗虫，寓意多子多孙。这件作品展现了清代玉雕工艺的精湛技艺和巧思。',
+        imageUrl: '/images/jade_cabbage.jpg',
+        significance: '翠玉白菜代表了清代玉雕艺术的最高水平，是故宫博物院的镇馆之宝之一。',
+        has3DView: true,
+      },
+      {
+        id: 'artifact-4-5',
+        name: '九龙壁',
+        nameEn: 'Nine-Dragon Wall',
+        museumId: 'museum-4',
+        period: '清朝（1773年）',
+        civilization: '中华文明',
+        material: '琉璃',
+        dimensions: '长29.4米，高3.5米',
+        description: '清代乾隆年间建造的琉璃影壁，九条巨龙栩栩如生',
+        detailedDescription:
+          '九龙壁位于故宫宁寿宫区皇极门外，建于清乾隆三十七年（1773年）。影壁长29.4米，高3.5米，由270块琉璃构件拼砌而成。壁面装饰有九条巨龙，腾云驾雾于波涛之上，形态各异，栩栩如生。九龙壁采用高浮雕工艺，色彩绚丽，是中国古代琉璃建筑艺术的杰作。',
+        imageUrl: '/images/nine_dragon_wall.jpg',
+        significance: '九龙壁是中国现存最精美的琉璃影壁之一，展现了清代建筑装饰艺术的高超水平。',
+        has3DView: true,
+      },
+      {
+        id: 'artifact-4-6',
+        name: '金瓯永固杯',
+        nameEn: 'Golden Cup of Eternal Stability',
+        museumId: 'museum-4',
+        period: '清朝（1740年）',
+        civilization: '中华文明',
+        material: '黄金、珠宝',
+        dimensions: '高12.5厘米，口径8厘米',
+        description: '清代乾隆皇帝御用酒杯，象征江山永固',
+        detailedDescription:
+          '金瓯永固杯是清乾隆皇帝每年元旦举行开笔仪式时专用的酒杯。杯身由黄金打造，镶嵌红宝石、蓝宝石、珍珠等珍贵宝石。杯身刻有"金瓯永固"、"乾隆年制"等铭文。"金瓯"寓意国家政权，"永固"象征江山永固。这件作品工艺精湛，是清代宫廷金银器的代表作。',
+        imageUrl: '/images/golden_cup.jpg',
+        significance: '金瓯永固杯代表了清代宫廷金银器制作的最高水平，具有重要的历史和艺术价值。',
+        has3DView: true,
+      },
+      {
+        id: 'artifact-4-7',
+        name: '各种釉彩大瓶',
+        nameEn: 'Vase with Various Glazes',
+        museumId: 'museum-4',
+        period: '清朝（1740年）',
+        civilization: '中华文明',
+        material: '瓷器',
+        dimensions: '高86.4厘米，口径27.4厘米',
+        description: '清代瓷器巅峰之作，集17种釉彩于一身',
+        detailedDescription:
+          '各种釉彩大瓶，俗称"瓷母"，是清乾隆年间景德镇御窑厂烧制的瓷器杰作。这件大瓶集青花、釉里红、粉彩、金彩等17种釉彩和装饰技法于一身，从上到下装饰有不同的纹饰，包括蕉叶、回纹、如意云头、缠枝花卉等。整件作品工艺复杂，烧制难度极大，展现了清代制瓷工艺的最高水平。',
+        imageUrl: '/images/vase_glazes.jpg',
+        significance: '各种釉彩大瓶是中国陶瓷史上的奇迹，代表了清代制瓷技术的巅峰成就。',
+        has3DView: true,
       },
     ],
   },

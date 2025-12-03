@@ -21,6 +21,7 @@ const navigation = [
   { name: '首页', path: '/', routeName: 'Home' },
   { name: '课程', path: '/lessons', routeName: 'Lessons' },
   { name: '历史学习', path: '/history-study', routeName: 'HistoryStudy' },
+  { name: '与历史对话', path: '/figures', routeName: 'HistoricalFigures' },
   { name: '学习路径', path: '/timeline', routeName: 'Timeline' },
   { name: '博物馆', path: '/museums', routeName: 'Museums' },
   { name: '好友', path: '/friends', routeName: 'Friends' },

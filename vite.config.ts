@@ -15,14 +15,15 @@ export default defineConfig({
   },
   // 确保环境变量被正确加载
   envPrefix: 'VITE_',
-  // 如果需要代理，可以取消注释以下配置
-  // server: {
-  //   proxy: {
-  //     '/api/openai': {
-  //       target: 'https://api.openai.com',
-  //       changeOrigin: true,
-  //       rewrite: (path) => path.replace(/^\/api\/openai/, ''),
-  //     },
-  //   },
-  // },
+  server: {
+    host: '0.0.0.0',
+    // 如果需要代理，可以在此处添加
+    // proxy: {
+    //   '/api/openai': {
+    //     target: 'https://api.openai.com',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api\/openai/, ''),
+    //   },
+    // },
+  },
 })

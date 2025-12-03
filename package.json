@@ -16,10 +16,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.80.0",
+    "@supabase/supabase-js": "^2.86.0",
+    "@types/three": "^0.181.0",
     "axios": "^1.13.2",
     "openai": "^6.8.1",
     "pinia": "^3.0.3",
+    "three": "^0.181.2",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
     "vue3-toastify": "^0.2.8"

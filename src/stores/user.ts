@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserProgress } from '../data/mockData'
 import { mockBadges } from '../data/mockData'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../services/supabase'
+import { getLessonProgress, saveLessonProgress, getUserProfile } from '../services/database'
 import type { User, Session } from '@supabase/supabase-js'
 
 export const useUserStore = defineStore('user', () => {
@@ -29,11 +30,38 @@ export const useUserStore = defineStore('user', () => {
     return mockBadges.filter((badge) => progress.value.badges.includes(badge.id))
   })
 
+  // 从数据库加载用户数据
+  const loadUserData = async (uid: string) => {
+    try {
+      // 加载用户资料
+      const profile = await getUserProfile(uid)
+      if (profile?.username) {
+        username.value = profile.username
+      }
+
+      // 加载学习进度
+      const lessonProgressData = await getLessonProgress(uid)
+      const completedLessonIds = lessonProgressData
+        .filter((p) => p.completed)
+        .map((p) => p.lesson_id)
+
+      progress.value.completedLessons = completedLessonIds
+      progress.value.userId = uid
+    } catch (error) {
+      console.error('加载用户数据失败:', error)
+    }
+  }
+
   // 完成课程
-  const completeLesson = (lessonId: string) => {
+  const completeLesson = async (lessonId: string) => {
     if (!progress.value.completedLessons.includes(lessonId)) {
       progress.value.completedLessons.push(lessonId)
       checkBadgeUnlock()
+
+      // 如果用户已登录，保存到数据库
+      if (isLoggedIn.value && userId.value !== 'guest') {
+        await saveLessonProgress(userId.value, lessonId, true)
+      }
     }
   }
 
@@ -102,6 +130,9 @@ export const useUserStore = defineStore('user', () => {
         const emailPrefix = email.split('@')[0] || '用户'
         username.value = userMetadata?.username || emailPrefix
         isLoggedIn.value = true
+
+        // 加载用户数据
+        await loadUserData(data.user.id)
       }
 
       return { data, error: null }
@@ -130,6 +161,9 @@ export const useUserStore = defineStore('user', () => {
         const userMetadata = data.user.user_metadata as { username?: string } | undefined
         username.value = userMetadata?.username || email.split('@')[0] || '历史学习者'
         isLoggedIn.value = true
+
+        // 加载用户数据
+        await loadUserData(data.user.id)
       }
 
       return { data, error: null }
@@ -159,6 +193,16 @@ export const useUserStore = defineStore('user', () => {
       userId.value = 'user-001'
       username.value = '历史学习者'
       isLoggedIn.value = false
+
+      // 重置进度
+      progress.value = {
+        userId: 'user-001',
+        completedLessons: [],
+        badges: [],
+        totalStudyTime: 0,
+        correctRate: 0,
+        currentStreak: 0,
+      }
     } catch (error) {
       console.error('登出错误:', error)
     } finally {
@@ -183,10 +227,13 @@ export const useUserStore = defineStore('user', () => {
           currentSession.user.email?.split('@')[0] ||
           '历史学习者'
         isLoggedIn.value = true
+
+        // 加载用户数据
+        await loadUserData(currentSession.user.id)
       }
 
       // 监听认证状态变化
-      supabase.auth.onAuthStateChange((_event, authSession) => {
+      supabase.auth.onAuthStateChange(async (_event, authSession) => {
         if (authSession?.user) {
           user.value = authSession.user
           session.value = authSession
@@ -195,6 +242,9 @@ export const useUserStore = defineStore('user', () => {
           username.value =
             userMetadata?.username || authSession.user.email?.split('@')[0] || '历史学习者'
           isLoggedIn.value = true
+
+          // 加载用户数据
+          await loadUserData(authSession.user.id)
         } else {
           user.value = null
           session.value = null
@@ -230,5 +280,6 @@ export const useUserStore = defineStore('user', () => {
     loginAsGuest,
     logout,
     init,
+    loadUserData,
   }
 })

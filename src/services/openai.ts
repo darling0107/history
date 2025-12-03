@@ -1,9 +1,3 @@
-/**
- * DeepSeek API 服务
- * 使用 DeepSeek 官方 API，支持流式响应
- * DeepSeek API 与 OpenAI API 兼容，使用相同的格式
- */
-
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -13,6 +7,7 @@ export interface ChatCompletionOptions {
   model?: string
   temperature?: number
   maxTokens?: number
+  systemPrompt?: string
 }
 
 /**
@@ -53,7 +48,7 @@ async function handleResponseError(response: Response): Promise<never> {
 }
 
 /**
- * 调用 DeepSeek Chat Completions API (流式响应)
+ * 调用 DeepSeek Chat Completions API
  * DeepSeek API 与 OpenAI API 格式兼容
  */
 export async function* streamChatCompletion(
@@ -68,10 +63,12 @@ export async function* streamChatCompletion(
   } = options
 
   // 构建系统消息
+  const defaultSystemPrompt =
+    '你是一个专业的历史知识助手，专门帮助用户学习历史知识。你是HistoriaQuest应用的AI助手，可以回答关于中国历史、世界历史、历史课程、博物馆、文物等相关问题。请用友好、专业、易懂的方式回答用户的问题。如果用户询问的问题与历史无关，你可以友好地引导用户回到历史话题。'
+
   const systemMessage: ChatMessage = {
     role: 'system',
-    content:
-      '你是一个专业的历史知识助手，专门帮助用户学习历史知识。你是HistoriaQuest应用的AI助手，可以回答关于中国历史、世界历史、历史课程、博物馆、文物等相关问题。请用友好、专业、易懂的方式回答用户的问题。如果用户询问的问题与历史无关，你可以友好地引导用户回到历史话题。',
+    content: options.systemPrompt || defaultSystemPrompt,
   }
 
   // 准备请求体（使用 OpenAI 兼容格式）

@@ -12,6 +12,8 @@ import Login from '@/views/Login.vue'
 import Friends from '@/views/Friends.vue'
 import PK from '@/views/PK.vue'
 import HistoryStudy from '@/views/HistoryStudy.vue'
+import HistoricalFigures from '@/views/HistoricalFigures.vue'
+import FigureChat from '@/views/FigureChat.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -79,6 +81,16 @@ const router = createRouter({
           path: 'history-study',
           name: 'HistoryStudy',
           component: HistoryStudy,
+        },
+        {
+          path: 'figures',
+          name: 'HistoricalFigures',
+          component: HistoricalFigures,
+        },
+        {
+          path: 'figures/:id',
+          name: 'FigureChat',
+          component: FigureChat,
         },
       ],
     },

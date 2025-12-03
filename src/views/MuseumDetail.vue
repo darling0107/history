@@ -2,6 +2,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getMuseumById, type Artifact } from '@/data/museumData'
+import Artifact3DViewer from '@/components/Artifact3DViewer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,6 +13,8 @@ const museum = computed(() => {
 })
 
 const selectedArtifact = ref<Artifact | null>(null)
+const show3DViewer = ref(false)
+const artifact3D = ref<Artifact | null>(null)
 
 const showArtifactDetail = (artifact: Artifact) => {
   selectedArtifact.value = artifact
@@ -19,6 +22,16 @@ const showArtifactDetail = (artifact: Artifact) => {
 
 const closeArtifactDetail = () => {
   selectedArtifact.value = null
+}
+
+const open3DViewer = (artifact: Artifact) => {
+  artifact3D.value = artifact
+  show3DViewer.value = true
+}
+
+const close3DViewer = () => {
+  show3DViewer.value = false
+  artifact3D.value = null
 }
 
 onMounted(() => {
@@ -117,15 +130,33 @@ onMounted(() => {
               </div>
             </div>
             <p class="text-gray-700 text-sm line-clamp-3 mb-4">{{ artifact.description }}</p>
-            <button
-              class="w-full px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-bold hover:from-amber-600 hover:to-orange-600 transition-all"
-            >
-              查看详情 →
-            </button>
+            <div class="flex gap-2">
+              <button
+                v-if="artifact.has3DView"
+                @click.stop="open3DViewer(artifact)"
+                class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center justify-center gap-2"
+              >
+                <span>🔮</span>
+                <span>3D 观看</span>
+              </button>
+              <button
+                :class="artifact.has3DView ? 'flex-1' : 'w-full'"
+                class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-bold hover:from-amber-600 hover:to-orange-600 transition-all"
+              >
+                查看详情 →
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 3D Viewer -->
+    <Artifact3DViewer
+      v-if="show3DViewer && artifact3D"
+      :artifact="artifact3D"
+      @close="close3DViewer"
+    />
 
     <!-- 文物详情模态框 -->
     <div
@@ -218,6 +249,17 @@ onMounted(() => {
               <p class="text-gray-700 leading-relaxed text-lg">
                 {{ selectedArtifact.significance }}
               </p>
+            </div>
+
+            <!-- 3D View Button -->
+            <div v-if="selectedArtifact.has3DView" class="mt-6">
+              <button
+                @click="(open3DViewer(selectedArtifact), closeArtifactDetail())"
+                class="w-full px-6 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+              >
+                <span class="text-2xl">🔮</span>
+                <span>进入 3D 观看模式</span>
+              </button>
             </div>
           </div>
         </div>

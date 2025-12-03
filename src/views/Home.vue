@@ -308,6 +308,23 @@ const startLearning = (lessonId: string) => {
           <span class="group-hover:translate-x-1 transition-transform">→</span>
         </router-link>
       </div>
+
+      <a
+        href="https://github.com/darling0107/history.git"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="bg-gray-900 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all transform hover:-translate-y-1 group"
+      >
+        <div class="text-4xl mb-4">💻</div>
+        <h3 class="text-xl font-bold text-white mb-2">开源项目</h3>
+        <p class="text-gray-400 text-sm mb-4">查看项目源码，参与贡献，一起完善这个历史学习平台</p>
+        <span
+          class="text-white font-semibold text-sm flex items-center gap-1 group-hover:text-amber-400 transition-colors"
+        >
+          前往 GitHub
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </span>
+      </a>
     </div>
 
     <!-- 快速开始 -->
