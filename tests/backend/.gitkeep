@@ -1,0 +1,10 @@
+# Backend Tests
+
+Place Python/pytest tests here.
+
+## Running Tests
+
+```bash
+cd ../backend
+pytest
+```

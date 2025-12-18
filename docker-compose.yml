@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # Python 后端
+  backend:
+    build: ./backend
+    container_name: historia-api
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      - CORS_ORIGINS=["https://hjy.dmmcloud.com","http://localhost:5173"]
+    ports:
+      - "8000:8000"
+    networks:
+      - historia-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Vue 前端
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_SUPABASE_URL: https://bsdijwonsnfpovmfesrf.supabase.co
+        VITE_SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJzZGlqd29uc25mcG92bWZlc3JmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NTEyNTksImV4cCI6MjA3ODMyNzI1OX0.hCCotEOlOkBfUg5j5Nso1cKSsI9XrMyYLfJ0I3iRMgA
+    container_name: historia-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - historia-network
+
+networks:
+  historia-network:
+    driver: bridge

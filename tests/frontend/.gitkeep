@@ -1,0 +1,10 @@
+# Frontend Tests
+
+Place Vue.js/Vitest tests here.
+
+## Running Tests
+
+```bash
+cd ../frontend
+npm run test
+```
