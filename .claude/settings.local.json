@@ -12,7 +12,8 @@
       "Bash(curl:*)",
       "Bash(ls:*)",
       "Bash(tar:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
