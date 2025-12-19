@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { mockBadges } from '../data/mockData'
 import { useUserStore } from '../stores/user'
 
 const userStore = useUserStore()
+
+// 进入页面时刷新用户数据
+onMounted(async () => {
+  await userStore.refreshUserData()
+})
 
 const allBadges = computed(() => {
   return mockBadges.map((badge) => ({

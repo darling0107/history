@@ -26,7 +26,6 @@ class LessonProgress(Base):
     completed = Column(Boolean, default=False)
     score = Column(Integer, default=0)
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class ChatHistory(Base):

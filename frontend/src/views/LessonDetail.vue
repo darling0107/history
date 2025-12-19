@@ -55,15 +55,24 @@ const handlePrevious = () => {
   showExplanation.value = false
 }
 
-const finishLesson = () => {
+const finishLesson = async () => {
   if (!lessonStore.currentLesson) return
 
   const result = lessonStore.calculateResult()
   const studyTime = Math.floor((Date.now() - startTime.value) / 1000 / 60)
+  const score = Math.round(result.rate * 100)
 
-  userStore.addStudyTime(studyTime)
+  // 添加学习时长
+  await userStore.addStudyTime(studyTime)
   userStore.updateCorrectRate(result.correct, result.total)
-  userStore.completeLesson(lessonStore.currentLesson.id)
+
+  // 完成课程并同步到后端（包含答题数据）
+  await userStore.completeLesson(
+    lessonStore.currentLesson.id,
+    result.correct,
+    result.total,
+    score,
+  )
 
   lessonStore.setQuizCompleted(true)
 }

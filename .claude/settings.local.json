@@ -13,7 +13,11 @@
       "Bash(ls:*)",
       "Bash(tar:*)",
       "Bash(mv:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose down:*)"
     ],
     "deny": [],
     "ask": []

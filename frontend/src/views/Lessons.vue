@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLessonStore } from '../stores/lesson'
 import { useUserStore } from '../stores/user'
@@ -8,6 +9,11 @@ const lessonStore = useLessonStore()
 const userStore = useUserStore()
 
 const lessons = lessonStore.getAllLessons()
+
+// 进入页面时刷新用户数据
+onMounted(async () => {
+  await userStore.refreshUserData()
+})
 
 const isCompleted = (lessonId: string) => {
   return userStore.progress.completedLessons.includes(lessonId)

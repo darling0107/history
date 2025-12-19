@@ -45,7 +45,7 @@ class LessonProgressResponse(BaseModel):
     id: UUID
     lesson_id: str
     completed: bool
-    score: int
+    score: Optional[int] = 0
     completed_at: Optional[datetime] = None
 
     class Config:

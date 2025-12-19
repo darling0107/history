@@ -3,7 +3,8 @@ import { ref, computed } from 'vue'
 import type { UserProgress } from '../data/mockData'
 import { mockBadges } from '../data/mockData'
 import { supabase } from '../services/supabase'
-import { getLessonProgress, saveLessonProgress, getUserProfile } from '../services/database'
+import { getUserProfile } from '../services/database'
+import { lessonApi, userApi } from '../services/api'
 import type { User, Session } from '@supabase/supabase-js'
 
 export const useUserStore = defineStore('user', () => {
@@ -39,35 +40,123 @@ export const useUserStore = defineStore('user', () => {
         username.value = profile.username
       }
 
-      // 加载学习进度
-      const lessonProgressData = await getLessonProgress(uid)
-      const completedLessonIds = lessonProgressData
-        .filter((p) => p.completed)
-        .map((p) => p.lesson_id)
+      // 通过后端 API 加载学习进度
+      try {
+        const progressResponse = await lessonApi.getAllProgress()
+        const progressData = progressResponse.data
+        // 确保 progressData 是数组
+        if (Array.isArray(progressData)) {
+          const completedLessonIds = progressData
+            .filter((p: { completed: boolean }) => p.completed)
+            .map((p: { lesson_id: string }) => p.lesson_id)
+          progress.value.completedLessons = completedLessonIds
+        }
 
-      progress.value.completedLessons = completedLessonIds
+        // 通过后端 API 加载用户统计和勋章
+        const statsResponse = await userApi.getStats()
+        const statsData = statsResponse.data
+        if (statsData) {
+          progress.value.badges = statsData.badges || []
+          progress.value.totalStudyTime = statsData.total_study_time || 0
+          progress.value.correctRate = statsData.correct_rate || 0
+          progress.value.currentStreak = statsData.current_streak || 0
+        }
+      } catch (apiError) {
+        console.warn('后端 API 暂不可用，使用本地数据:', apiError)
+      }
+
       progress.value.userId = uid
     } catch (error) {
       console.error('加载用户数据失败:', error)
     }
   }
 
-  // 完成课程
-  const completeLesson = async (lessonId: string) => {
-    if (!progress.value.completedLessons.includes(lessonId)) {
-      progress.value.completedLessons.push(lessonId)
-      checkBadgeUnlock()
+  // 刷新用户数据（从后端同步最新状态）
+  const refreshUserData = async () => {
+    if (!isLoggedIn.value || userId.value === 'guest') return
 
-      // 如果用户已登录，保存到数据库
-      if (isLoggedIn.value && userId.value !== 'guest') {
-        await saveLessonProgress(userId.value, lessonId, true)
+    try {
+      // 获取课程进度
+      const progressResponse = await lessonApi.getAllProgress()
+      const progressData = progressResponse.data
+      // 确保 progressData 是数组
+      if (Array.isArray(progressData)) {
+        const completedLessonIds = progressData
+          .filter((p: { completed: boolean }) => p.completed)
+          .map((p: { lesson_id: string }) => p.lesson_id)
+        progress.value.completedLessons = completedLessonIds
       }
+
+      // 获取用户统计和勋章
+      const statsResponse = await userApi.getStats()
+      const statsData = statsResponse.data
+      if (statsData) {
+        progress.value.badges = statsData.badges || []
+        progress.value.totalStudyTime = statsData.total_study_time || 0
+        progress.value.correctRate = statsData.correct_rate || 0
+        progress.value.currentStreak = statsData.current_streak || 0
+      }
+    } catch (error) {
+      console.error('刷新用户数据失败:', error)
     }
   }
 
-  // 添加学习时间
-  const addStudyTime = (minutes: number) => {
+  // 完成课程（通过后端 API）
+  const completeLesson = async (
+    lessonId: string,
+    correctCount: number = 0,
+    totalCount: number = 0,
+    score: number = 0,
+  ) => {
+    // 先更新本地状态（乐观更新）
+    if (!progress.value.completedLessons.includes(lessonId)) {
+      progress.value.completedLessons.push(lessonId)
+    }
+
+    // 如果用户已登录，通过后端 API 同步
+    if (isLoggedIn.value && userId.value !== 'guest') {
+      try {
+        const response = await lessonApi.complete({
+          lesson_id: lessonId,
+          correct_count: correctCount,
+          total_count: totalCount,
+          score: score,
+        })
+
+        // 从后端响应更新勋章
+        const data = response.data
+        if (data.all_badges) {
+          progress.value.badges = data.all_badges
+        }
+
+        // 如果有新勋章解锁，可以触发通知
+        if (data.new_badges && data.new_badges.length > 0) {
+          console.log('🎉 新勋章解锁:', data.new_badges)
+          // 可以在这里触发全局通知或事件
+        }
+      } catch (error) {
+        console.error('同步课程完成状态失败:', error)
+        // 即使后端失败，本地状态已更新
+      }
+    } else {
+      // 游客模式，只更新本地状态
+      checkBadgeUnlock()
+    }
+  }
+
+  // 添加学习时间（通过后端 API）
+  const addStudyTime = async (minutes: number) => {
     progress.value.totalStudyTime += minutes
+
+    // 如果用户已登录，同步到后端
+    if (isLoggedIn.value && userId.value !== 'guest') {
+      try {
+        await userApi.addStudyTime(minutes)
+      } catch (error) {
+        console.error('同步学习时长失败:', error)
+      }
+    }
+
     checkBadgeUnlock()
   }
 
@@ -281,5 +370,6 @@ export const useUserStore = defineStore('user', () => {
     logout,
     init,
     loadUserData,
+    refreshUserData,
   }
 })

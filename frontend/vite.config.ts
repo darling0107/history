@@ -17,13 +17,12 @@ export default defineConfig({
   envPrefix: 'VITE_',
   server: {
     host: '0.0.0.0',
-    // 如果需要代理，可以在此处添加
-    // proxy: {
-    //   '/api/openai': {
-    //     target: 'https://api.openai.com',
-    //     changeOrigin: true,
-    //     rewrite: (path) => path.replace(/^\/api\/openai/, ''),
-    //   },
-    // },
+    // 代理后端 API 请求
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
   },
 })

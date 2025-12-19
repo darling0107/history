@@ -14,24 +14,29 @@ from app.utils import CurrentUser, get_current_user
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+async def ensure_user_profile_exists(user_id, email: str, db: AsyncSession) -> UserProfile:
+    """确保用户资料存在，如果不存在则创建"""
+    result = await db.execute(
+        select(UserProfile).where(UserProfile.id == user_id)
+    )
+    user = result.scalar_one_or_none()
+
+    if not user:
+        user = UserProfile(id=user_id, username=email or "用户")
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+
+    return user
+
+
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_profile(
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """获取当前用户资料"""
-    result = await db.execute(
-        select(UserProfile).where(UserProfile.id == current_user.id)
-    )
-    user = result.scalar_one_or_none()
-
-    if not user:
-        # 如果用户不存在，创建一个新的用户资料
-        user = UserProfile(id=current_user.id, username=current_user.email)
-        db.add(user)
-        await db.commit()
-        await db.refresh(user)
-
+    user = await ensure_user_profile_exists(current_user.id, current_user.email, db)
     return user
 
 
@@ -43,16 +48,7 @@ async def update_current_user_profile(
     db: AsyncSession = Depends(get_db)
 ):
     """更新当前用户资料"""
-    result = await db.execute(
-        select(UserProfile).where(UserProfile.id == current_user.id)
-    )
-    user = result.scalar_one_or_none()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    user = await ensure_user_profile_exists(current_user.id, current_user.email, db)
 
     if username is not None:
         user.username = username
@@ -70,6 +66,9 @@ async def get_current_user_stats(
     db: AsyncSession = Depends(get_db)
 ):
     """获取当前用户学习统计"""
+    # 确保用户资料存在
+    await ensure_user_profile_exists(current_user.id, current_user.email, db)
+
     result = await db.execute(
         select(UserStats).where(UserStats.user_id == current_user.id)
     )
@@ -85,10 +84,10 @@ async def get_current_user_stats(
         correct_rate = stats.correct_answers / stats.total_answers
 
     return UserStatsResponse(
-        total_study_time=stats.total_study_time,
-        correct_answers=stats.correct_answers,
-        total_answers=stats.total_answers,
-        current_streak=stats.current_streak,
+        total_study_time=stats.total_study_time or 0,
+        correct_answers=stats.correct_answers or 0,
+        total_answers=stats.total_answers or 0,
+        current_streak=stats.current_streak or 0,
         badges=stats.badges or [],
         correct_rate=correct_rate
     )
@@ -101,16 +100,20 @@ async def add_study_time(
     db: AsyncSession = Depends(get_db)
 ):
     """添加学习时长"""
+    # 确保用户资料存在
+    await ensure_user_profile_exists(current_user.id, current_user.email, db)
+
     result = await db.execute(
         select(UserStats).where(UserStats.user_id == current_user.id)
     )
     stats = result.scalar_one_or_none()
 
     if not stats:
-        stats = UserStats(user_id=current_user.id, total_study_time=minutes)
+        stats = UserStats(user_id=current_user.id, total_study_time=minutes, badges=[])
         db.add(stats)
     else:
-        stats.total_study_time += minutes
+        current_time = stats.total_study_time or 0
+        stats.total_study_time = current_time + minutes
 
     await db.commit()
     return MessageResponse(message=f"Added {minutes} minutes of study time")
